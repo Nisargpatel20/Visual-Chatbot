@@ -1,4 +1,4 @@
-# Visual Chatbot with Vision API and 
+# Visual Chatbot 
 
 Build a Visual Chatbot frontend using Django framework and deploy it on App Engine and Deploed it on the Google Cloud Storage(GCS). At the backend, create a fulfillment that calls the google cloud vision API for Landmark detection and Label Detection(Hashtags) in an image.
 
