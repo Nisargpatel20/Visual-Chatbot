@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1b5e03f7-5dfb-405a-b619-7add462ad418",
+    "data": [
+      {
+        "text": "temp.jpg",
+        "meta": "@filename",
+        "alias": "filename",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "lang": "en",
+    "updated": 0
+  },
+  {
+    "id": "9787bd8c-bbc7-498f-969d-de9a417b1ebc",
+    "data": [
+      {
+        "text": "demo.jpeg",
+        "meta": "@filename",
+        "alias": "filename",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "lang": "en",
+    "updated": 0
+  }
+]

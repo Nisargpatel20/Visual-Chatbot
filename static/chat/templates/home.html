@@ -1,0 +1,176 @@
+<!-- //** Copyright 2019 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**// -->
+
+{% load staticfiles %}
+<html>
+  <head>
+    <title>Visual Chatboat</title>
+    <link rel="stylesheet" href="{% static 'static/css/bootstrap.css' %}"/>
+    <link rel="stylesheet" href="{% static 'static/css/custom.css' %}"/>
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="page-header text-center">
+        <h1>Visual Chatboat</h1>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-6 col-xs-offset-3">
+          <ul class="list-group js-chat-log">
+          </ul>            
+
+          <div class="input-group input-group-lg">
+            <input type="text" class="form-control js-text" placeholder="Type something to begin..."/>
+            <span class="input-group-btn">   
+              <button class="btn btn-primary js-say">Submit</button>{% csrf_token %}
+            </span>
+          </div>
+          <input type="file" class="custom-file-input" name="file" id="inputGroupFile01"
+                    aria-describedby="inputGroupFileAddon01">
+
+        </div>
+      </div>
+    </div>
+
+    <script src="{% static 'static/js/jquery.js' %}"></script>
+    <script src="{% static 'static/js/js.cookie.js' %}"></script>
+    <script src="{% static 'static/js/bootstrap.js' %}"></script>
+    <!-- <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+      intent="WELCOME"
+      chat-title="Vision-Chatboat"
+      agent-id="1edcf2a6-a9d1-4e9b-9cd9-845d1cebc34b"
+      language-code="en"
+    ></df-messenger> -->
+    <script>
+      var $chatlog = $('.js-chat-log');
+      var $input = $('.js-text');
+      
+      var $sayButton = $('.js-say');
+      var dialogflowUrl = '{% url "index" %}';
+      var csrftoken = Cookies.get('csrftoken');
+      console.log("---csrf token---",csrftoken);
+
+      function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+
+      $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        }
+      });
+
+      var file_length_bool = true;
+      // helper method to create the list of inputs and outputs to display on the web page to show the chat messages. 
+      function createRow(input) {
+        var $row = $('<li class="list-group-item"></li>');
+        var list = '<li class="list-group-item">'
+        file_length = document.getElementById('inputGroupFile01').files.length
+        console.log("---I am here--EEEEEE-", file_length,file_length_bool);
+
+        if (file_length != 0 && file_length_bool == true){
+          // console.log("---I am here---", file_length);
+          filename = document.getElementById('inputGroupFile01').files[0].name
+          url_test = "https://storage.googleapis.com/<your GCS media bucket Name>/" + filename; // Add the your GCS media bucket name here
+          list +=  '<img src="'+url_test+'" height="100" width="80"/>' + "<br />"
+          file_length_bool = false;
+        }
+        else{
+          var k = input.split("\n")
+          for(i=0;i<k.length;i++) {
+             list += k[i]+"<br />"
+          }
+        }
+          list = list + "</li>"
+          // console.log("----file lengtth is--",list);
+          $row.text(list);
+          $chatlog.append(list);
+      }
+
+      window.onload = createRow('<b><font size="4" face="Lucida Console">Chat with Visual Chatboat</font></b>');
+
+      function submitInput() {
+
+        var fileInput = document.getElementById('inputGroupFile01');
+        var file = fileInput.files[0];
+        console.log("---file----",file);
+        // handle when the user input is text 
+        if (file == undefined){
+          console.log("No input file");
+          var inputData = {
+            'text': $input.val(),
+          }
+          // Display the user's input on the web page
+          createRow(inputData.text);
+          var dialogflowChatUrl = '{% url "chat-home" %}';
+          console.log("----input text and DialogURL---",inputData,dialogflowChatUrl);
+          var $submit = $.ajax({
+            type: 'POST',
+            url: dialogflowChatUrl,
+            data: JSON.stringify(inputData),
+            contentType: 'application/json',
+          });
+        }
+        else{
+          // handle when input is a file
+          var formData = new FormData(document.getElementById('inputGroupFile01')[0]);
+          console.log("---sucess--- form data--");
+          formData.append('file', file);
+          // Display the user's input file on the web page
+          createRow(formData);
+          console.log('Form Data is', formData)
+          var dialogflowChatUrl = '{% url "chat-home" %}';
+          var $submit = $.ajax({
+            type: 'POST',
+            url: dialogflowChatUrl,
+            data: formData,
+            contentType: false,
+            async:false,
+            processData: false,
+            enctype: 'multipart/form-data'
+          });
+        }
+
+        $submit.done(function(statement) {
+            createRow(statement);
+            // Clear the input field
+            $input.val('');
+        });
+
+        $submit.fail(function() {
+          // TODO: Handle errors
+          console.log('failed')
+        });
+      }
+
+      $sayButton.click(function() {
+        submitInput();
+      });
+
+      $input.keydown(function(event) {
+        // Submit the input when the enter button is pressed
+        if (event.keyCode == 13) {
+          submitInput();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "id": "0f5ad43e-d836-44e5-97be-9a658b768820",
+  "name": "filename",
+  "isOverridable": true,
+  "isEnum": false,
+  "isRegexp": false,
+  "automatedExpansion": true,
+  "allowFuzzyExtraction": true
+}
