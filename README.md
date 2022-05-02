@@ -8,7 +8,7 @@ Build a Visual Chatbot frontend using Django framework and deploy it on App Engi
 
 ## Live Demo
 
-![alt text](grand-canyon.jpeg)
+![alt text](https://github.com/Nisargpatel20/Visual-Chatbot/blob/main/visual-chatbot.gif)
 
 ## Setup Instructions
 
